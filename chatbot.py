@@ -1,29 +1,26 @@
-from datetime import datetime
+# chatbot.py
 from student import Student
+from database import Database
+from datetime import datetime
 
 class Chatbot:
     def __init__(self, database):
         self.database = database
         self.history = []
-        self.pending_action = None # used to keep track of ongoing actions
-        self.pending_data = {} # used to store input across multiple steps(name -> age -> grade ))
-
-    def get_current_time(self):
-        return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.pending_action = None
+        self.temp_data = {}
 
     def ask(self, user_input):
-        user_input = user_input.strip()
         response = ""
 
-        if self.pending_action == "add_student":
-            response = self._handle_add_student(user_input)
-
+        if self.pending_action:
+            response = self._handle_pending(user_input)
         else:
             intent = self._match_intent(user_input)
             response = self._respond(intent, user_input)
 
         self.history.append({
-            "timestamp": self.get_current_time(),
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "user": user_input,
             "bot": response
         })
@@ -35,71 +32,97 @@ class Chatbot:
             return "fetch_students"
         elif text == "add student":
             return "add_student"
-        elif text.startswith("delete student"):
+        elif text == "delete student":
             return "delete_student"
-        elif text.startswith("update student"):
+        elif text == "update student":
             return "update_student"
-        else:
-            return "unknown"
+        return "unknown"
 
     def _respond(self, intent, user_input):
         if intent == "fetch_students":
             students = self.database.fetch_students()
             if not students:
                 return "No students found."
-            return "\n".join([f"{s.student_id}: {s.name}, Age: {s.age}, Grade: {s.grade}" for s in students])
+            return "\n".join([
+                f"{s.student_id}: {s.name}, Age: {s.age}, Grade: {s.grade}"
+                for s in students
+            ])
 
         elif intent == "add_student":
             self.pending_action = "add_student"
-            self.pending_data = {}
-            return "Please enter the student's full name:"
+            self.temp_data = {}
+            return "Please enter the student's name:"
 
         elif intent == "delete_student":
-            parts = user_input.split()
-            if len(parts) < 3 or not parts[2].isdigit():
-                return "Invalid format. Use: delete student <ID>"
-            student_id = int(parts[2])
-            self.database.delete_student(student_id)
-            return f"Student with ID {student_id} deleted successfully."
+            self.pending_action = "delete_student"
+            return "Please enter the student ID to delete:"
 
         elif intent == "update_student":
-            return "Update functionality will be added soon."
+            self.pending_action = "update_student_id"
+            return "Please enter the student ID to update:"
 
-        else:
-            return "I didn't understand that. Try commands like: 'add student', 'fetch students', 'delete student <ID>'."
+        return "I didn't understand that. Please try again."
 
-    def _handle_add_student(self, user_input):
-        if "name" not in self.pending_data:
-            self.pending_data["name"] = user_input
-            return "Enter the student's age:"
+    def _handle_pending(self, user_input):
+        if self.pending_action == "add_student":
+            if "name" not in self.temp_data:
+                self.temp_data["name"] = user_input
+                return "Please enter the student's age:"
+            elif "age" not in self.temp_data:
+                self.temp_data["age"] = user_input
+                return "Please enter the student's grade:"
+            else:
+                self.temp_data["grade"] = user_input
+                self.database.insert_student(
+                    self.temp_data["name"],
+                    self.temp_data["age"],
+                    self.temp_data["grade"]
+                )
+                self.pending_action = None
+                return f"Student {self.temp_data['name']} added successfully."
 
-        elif "age" not in self.pending_data:
-            if not user_input.isdigit():
-                return "Age must be a number. Please enter a valid age:"
-            self.pending_data["age"] = user_input
-            return "Enter the student's grade:"
+        elif self.pending_action == "delete_student":
+            try:
+                student_id = int(user_input)
+                self.database.delete_student(student_id)
+                self.pending_action = None
+                return f"Student with ID {student_id} deleted successfully."
+            except:
+                return "Invalid ID. Please enter a numeric value."
 
-        elif "grade" not in self.pending_data:
-            self.pending_data["grade"] = user_input
+        elif self.pending_action == "update_student_id":
+            try:
+                self.temp_data["id"] = int(user_input)
+                self.pending_action = "update_student_name"
+                return "Enter the new name:"
+            except:
+                return "Invalid ID. Please enter a numeric value."
 
-            # All data received; add student to database
-            name = self.pending_data["name"]
-            age = self.pending_data["age"]
-            grade = self.pending_data["grade"]
+        elif self.pending_action == "update_student_name":
+            self.temp_data["name"] = user_input
+            self.pending_action = "update_student_age"
+            return "Enter the new age:"
 
-            self.database.insert_student(name, age, grade)
+        elif self.pending_action == "update_student_age":
+            self.temp_data["age"] = user_input
+            self.pending_action = "update_student_grade"
+            return "Enter the new grade:"
 
+        elif self.pending_action == "update_student_grade":
+            self.temp_data["grade"] = user_input
+            student = Student(
+                name=self.temp_data["name"],
+                age=self.temp_data["age"],
+                grade=self.temp_data["grade"],
+                student_id=self.temp_data["id"]
+            )
+            self.database.update_student(student)
             self.pending_action = None
-            self.pending_data = {}
+            return f"Student with ID {student.student_id} updated successfully."
 
-            return f"Student {name} added successfully (Age: {age}, Grade: {grade})."
-
-    def show_history(self):
-        for entry in self.history:
-            print(f"{entry['timestamp']} - User: {entry['user']} | Bot: {entry['bot']}")
+        return "Unexpected error. Try again."
 
     def reset_session(self):
         self.history.clear()
         self.pending_action = None
-        self.pending_data = {}
-        return "Session reset."
+        self.temp_data = {}
