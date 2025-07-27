@@ -1,0 +1,52 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+env/
+ENV/
+.venv/
+
+# Streamlit cache and logs
+.streamlit/
+.streamlit/config.toml
+.streamlit/secrets.toml
+
+# Log files
+*.log
+
+# macOS / Linux system files
+.DS_Store
+*.swp
+
+# Windows thumbnail cache
+Thumbs.db
+
+# Database credentials (if stored temporarily)
+*.sqlite
+*.db
+*.sql
+
+# JSON credentials (optional if dynamic)
+credentials.json
+users.json
+
+# VSCode & IDE settings
+.vscode/
+.idea/
+*.code-workspace
+
+# Jupyter/IPython (if used)
+.ipynb_checkpoints/
+
+# Test output
+htmlcov/
+coverage.xml
+*.cover
+
+# Python profiling/debugging
+*.pyo
+*.pyd
+*.prof
