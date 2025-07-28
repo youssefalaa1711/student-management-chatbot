@@ -36,6 +36,12 @@ class Chatbot:
             return "delete_student"
         elif text == "update student":
             return "update_student"
+        elif text == "search student":
+            return "search_student"
+        elif text == "search grade":
+            return "search_grade"
+        elif text == "search age":
+            return "search_age"
         return "unknown"
 
     def _respond(self, intent, user_input):
@@ -60,6 +66,16 @@ class Chatbot:
         elif intent == "update_student":
             self.pending_action = "update_student_id"
             return "Please enter the student ID to update:"
+
+        elif intent == "search_student":
+            self.pending_action = "search_student"
+            return "Please enter the student's name to search:"
+        elif intent == "search_grade":
+            self.pending_action = "search_grade"
+            return "Please enter the grade to search for:"
+        elif intent == "search_age":
+            self.pending_action = "search_age"
+            return "Please enter the age to search for (e.g., 18 or 18-22):"
 
         return "I didn't understand that. Please try again."
 
@@ -119,6 +135,50 @@ class Chatbot:
             self.database.update_student(student)
             self.pending_action = None
             return f"Student with ID {student.student_id} updated successfully."
+
+        elif self.pending_action == "search_student":
+            name_query = user_input.strip().lower()
+            students = self.database.fetch_students()
+            results = [
+                s for s in students if name_query in s.name.lower()
+            ]
+            self.pending_action = None
+            if results:
+                return "\n".join([
+                    f"{s.student_id}: {s.name}, Age: {s.age}, Grade: {s.grade}"
+                    for s in results
+                ])
+            else:
+                return "No student found with that name."
+
+        elif self.pending_action == "search_grade":
+            grade_query = user_input.strip().lower()
+            students = self.database.fetch_students()
+            results = [s for s in students if grade_query == str(s.grade).lower()]
+            self.pending_action = None
+            if results:
+                return "\n".join([f"{s.student_id}: {s.name}, Age: {s.age}, Grade: {s.grade}" for s in results])
+            else:
+                return "No student found with that grade."
+
+        elif self.pending_action == "search_age":
+            age_query = user_input.strip()
+            students = self.database.fetch_students()
+            results = []
+            if "-" in age_query:
+                try:
+                    min_age, max_age = map(int, age_query.split("-"))
+                    results = [s for s in students if min_age <= int(s.age) <= max_age]
+                except:
+                    self.pending_action = None
+                    return "Invalid range format. Please enter as 'min-max' (e.g., 18-22)."
+            else:
+                results = [s for s in students if age_query == str(s.age)]
+            self.pending_action = None
+            if results:
+                return "\n".join([f"{s.student_id}: {s.name}, Age: {s.age}, Grade: {s.grade}" for s in results])
+            else:
+                return "No student found with that age or in that range."
 
         return "Unexpected error. Try again."
 

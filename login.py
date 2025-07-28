@@ -32,7 +32,7 @@ def login_system():
 
     # ---- Login Tab ----
     with tab1:
-        username = st.text_input("Username")
+        username = st.text_input("Username").strip()
         password = st.text_input("Password", type="password")
         role = st.radio("Login as:", ["User", "Admin"])
         login_btn = st.button("Login")
@@ -53,13 +53,13 @@ def login_system():
                     st.session_state.username = username
                     st.session_state.role = "user"
                     st.success("Logged in as User")
-                    st.switch_page("app.py")
+                    st.switch_page("pages/app.py")  
                 else:
                     st.error("Invalid User credentials.")
 
     # ---- Register Tab ----
     with tab2:
-        new_username = st.text_input("New Username")
+        new_username = st.text_input("New Username").strip()
         new_password = st.text_input("New Password", type="password")
         confirm_password = st.text_input("Confirm Password", type="password")
         register_btn = st.button("Register")
@@ -71,12 +71,9 @@ def login_system():
                 st.warning("Password too short (min 4 characters).")
             else:
                 users = load_json(USERS_FILE)
-                if new_username in users:
-                    st.warning("Username already exists.")
-                else:
-                    users[new_username] = new_password
-                    save_json(USERS_FILE, users)
-                    st.success("Registration successful. You can now log in.")
+                users[new_username] = new_password
+                save_json(USERS_FILE, users)
+                st.success("Registration successful. You can now log in.")
 
 # ---- Run App ----
 if __name__ == "__main__":

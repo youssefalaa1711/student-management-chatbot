@@ -24,35 +24,52 @@ if "chatbot" not in st.session_state:
 
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
+    # Add greeting as the first bot message
+    st.session_state.chat_history.append((
+        "bot",
+        "Welcome! How can I assist you with today?"
+    ))
 
 chatbot = st.session_state.chatbot
 
 # --- Page Title ---
 st.title("🎓 Student Assistant Chatbot")
 
-# --- Sidebar: Quick Actions ---
+# --- Sidebar: Quick Actions (3 columns, 3 rows, 7 actions) ---
 st.sidebar.header("📚 Quick Actions")
 
-if st.sidebar.button("Add Student"):
-    response = chatbot.ask("add student")
-    st.session_state.chat_history.append(("user", "add student"))
-    st.session_state.chat_history.append(("bot", response))
+actions = [
+    ("Add Student", "add student"),
+    ("Fetch Students", "fetch students"),
+    ("Delete Student", "delete student"),
+    ("Update Student", "update student"),
+    ("Search Student", "search student"),
+    ("Search Grade", "search grade"),
+    ("Search Age", "search age"),
+]
 
-if st.sidebar.button("Fetch Students"):
-    response = chatbot.ask("fetch students")
-    st.session_state.chat_history.append(("user", "fetch students"))
-    st.session_state.chat_history.append(("bot", response))
+cols = st.sidebar.columns(3)
+for i, (label, command) in enumerate(actions):
+    col = cols[i % 3]
+    if col.button(label, key=f"action_{command}"):
+        # Role-based restrictions for admin actions
+        if command in ["add student", "delete student", "update student"]:
+            if st.session_state.get("role") == "admin":
+                response = chatbot.ask(command)
+                st.session_state.chat_history.append(("user", command))
+                st.session_state.chat_history.append(("bot", response))
+            else:
+                st.session_state.chat_history.append(("bot", f"❌ You do not have permission to {label.lower()}."))
+        else:
+            response = chatbot.ask(command)
+            st.session_state.chat_history.append(("user", command))
+            st.session_state.chat_history.append(("bot", response))
 
-if st.sidebar.button("Delete Student"):
-    response = chatbot.ask("delete student")
-    st.session_state.chat_history.append(("user", "delete student"))
-    st.session_state.chat_history.append(("bot", response))
+# Add empty rows if needed to keep the grid shape
+for _ in range((3 - (len(actions) % 3)) % 3):
+    cols[_].markdown("&nbsp;")
 
-if st.sidebar.button("Update Student"):
-    response = chatbot.ask("update student")
-    st.session_state.chat_history.append(("user", "update student"))
-    st.session_state.chat_history.append(("bot", response))
-
+# --- Separator ---
 st.sidebar.markdown("---")
 
 if st.sidebar.button("Reset Chat"):
@@ -64,9 +81,8 @@ st.sidebar.markdown("### ⚙️ Settings")
 bubble_color = st.sidebar.color_picker("Choose your chat bubble color:", "#DCF8C6")
 st.session_state["user_bubble_color"] = bubble_color
 
-# --- Sidebar: Logout Button (light red color) ---
-logout_btn = st.sidebar.button("Logout", key="logout_btn")
-
+# --- Sidebar: Logout Button (light red) ---
+logout_btn = st.sidebar.button("🚪 Logout", key="logout_btn")
 if logout_btn:
     for key in ["username", "role", "chatbot", "chat_history"]:
         if key in st.session_state:
