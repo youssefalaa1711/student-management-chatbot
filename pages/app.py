@@ -35,7 +35,7 @@ chatbot = st.session_state.chatbot
 # --- Page Title ---
 st.title("🎓 Student Assistant Chatbot")
 
-# --- Sidebar: Quick Actions (3 columns, 3 rows, 7 actions) ---
+# --- Sidebar: Quick Actions
 st.sidebar.header("📚 Quick Actions")
 
 actions = [
@@ -52,7 +52,7 @@ cols = st.sidebar.columns(3)
 for i, (label, command) in enumerate(actions):
     col = cols[i % 3]
     if col.button(label, key=f"action_{command}"):
-        # Role-based restrictions for admin actions
+        # Restrect certain commands to admin role
         if command in ["add student", "delete student", "update student"]:
             if st.session_state.get("role") == "admin":
                 response = chatbot.ask(command)
@@ -81,8 +81,8 @@ st.sidebar.markdown("### ⚙️ Settings")
 bubble_color = st.sidebar.color_picker("Choose your chat bubble color:", "#DCF8C6")
 st.session_state["user_bubble_color"] = bubble_color
 
-# --- Sidebar: Logout Button (light red) ---
-logout_btn = st.sidebar.button("🚪 Logout", key="logout_btn")
+# --- Sidebar: Logout Button ---
+logout_btn = st.sidebar.button("Logout", key="logout_btn")
 if logout_btn:
     for key in ["username", "role", "chatbot", "chat_history"]:
         if key in st.session_state:
