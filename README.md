@@ -15,7 +15,7 @@ This is a **student management system** built using **Python**, **MySQL**, and *
 - **User** can:
   - Ask questions through the chatbot
   - View student records
-  - Search for studnet details
+  - Search for student details
   - Use buttons or text commands to trigger actions
 
 ### 💬 Chatbot Interface
@@ -40,5 +40,21 @@ This is a **student management system** built using **Python**, **MySQL**, and *
 - Users can register and log in.
 - Admin credentials are hardcoded into `credentials.json`.
 - User credentials are stored in `users.json`.
-- Passwords are stored as **plain text**
+- Passwords are stored as **plain text**.
+
+---
+
+## 🖼️ Screenshots
+
+### 🔓 Login Page
+
+<img src="Images/Login.png" alt="Login Page" width="600"/>
+
+### 💬 Chatbot Interface
+
+<img src="Images/Chatbot.png" alt="Chatbot Interface" width="600"/>
+
+---
+
+
 
