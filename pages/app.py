@@ -6,6 +6,15 @@ import pandas as pd
 st.markdown("""
     <style>
     [data-testid="stSidebarNav"] {display: none;}
+    .big-table-container {
+        width: 100% !important;
+        min-width: 800px !important;
+        margin-left: -40px;  /* Optional: shift left to use more space */
+    }
+    .big-table-container table {
+        width: 100% !important;
+        font-size: 1.1em;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -126,7 +135,11 @@ for sender, msg in st.session_state.chat_history:
                         break
                 if data:
                     st.markdown(f"<div style='color:{text_color};'><strong>Bot:</strong></div>", unsafe_allow_html=True)
-                    st.table(pd.DataFrame(data))
+                    df = pd.DataFrame(data)
+                    st.markdown(
+                        f'<div class="big-table-container">{df.to_html(index=False)}</div>',
+                        unsafe_allow_html=True
+                    )
                 else:
                     st.markdown(
                         f"<div style='text-align:left; background-color:{bot_bubble_color}; color:{text_color}; "
