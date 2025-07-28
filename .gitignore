@@ -10,8 +10,6 @@ ENV/
 .venv/
 
 # Streamlit cache and logs
-.streamlit/
-.streamlit/config.toml
 .streamlit/secrets.toml
 
 # Log files
@@ -29,9 +27,6 @@ Thumbs.db
 *.db
 *.sql
 
-# JSON credentials (optional if dynamic)
-credentials.json
-users.json
 
 # VSCode & IDE settings
 .vscode/
@@ -50,3 +45,6 @@ coverage.xml
 *.pyo
 *.pyd
 *.prof
+
+#Video files
+Video/

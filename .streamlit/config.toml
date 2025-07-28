@@ -1,0 +1,7 @@
+[theme]
+base = "light"
+primaryColor = "#3E8EF7"               # Calm, professional blue
+backgroundColor = "#F9FBFC"            # Soft white background
+secondaryBackgroundColor = "#E6EEF8"   # Light blue-gray for cards/sidebar
+textColor = "#1F1F1F"                  # Clean dark gray text
+font = "sans serif"                    # Simple and clean font
