@@ -38,7 +38,7 @@ def login_system():
                     st.session_state.username = username
                     st.session_state.role = "admin"
                     st.success("Logged in as Admin")
-                    st.switch_page("app.py")
+                    st.switch_page("pages/app.py") 
                 else:
                     st.error("Invalid Admin credentials.")
             else:
