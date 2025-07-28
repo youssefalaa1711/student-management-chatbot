@@ -3,6 +3,12 @@ from chatbot import Chatbot
 from database import Database
 import pandas as pd
 
+st.markdown("""
+    <style>
+    [data-testid="stSidebarNav"] {display: none;}
+    </style>
+""", unsafe_allow_html=True)
+
 # --- Initialize chatbot and session ---
 if "chatbot" not in st.session_state:
     st.session_state.chatbot = Chatbot(Database())
@@ -48,6 +54,27 @@ if st.sidebar.button("Reset Chat"):
 st.sidebar.markdown("### ⚙️ Settings")
 bubble_color = st.sidebar.color_picker("Choose your chat bubble color:", "#DCF8C6")
 st.session_state["user_bubble_color"] = bubble_color
+
+# --- Sidebar: Logout Button (light red color) ---
+logout_btn = st.sidebar.button("Logout", key="logout_btn")
+
+if logout_btn:
+    for key in ["username", "role", "chatbot", "chat_history"]:
+        if key in st.session_state:
+            del st.session_state[key]
+    st.success("Logged out!")
+    st.switch_page("login.py")
+
+# Custom CSS for light red logout button
+st.markdown("""
+    <style>
+    [data-testid="stSidebar"] button[kind="secondary"][key="logout_btn"] {
+        background-color: #ffcccc !important;
+        color: #a94442 !important;
+        border: 1px solid #a94442 !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
 # --- Main Chat Interface ---
 user_input = st.chat_input("Type your message...")

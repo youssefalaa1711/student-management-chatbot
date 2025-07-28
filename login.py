@@ -2,6 +2,12 @@ import streamlit as st
 import json
 import os
 
+st.markdown("""
+    <style>
+    [data-testid="stSidebar"] {display: none;}
+    </style>
+""", unsafe_allow_html=True)
+
 # ---- File Paths ----
 CREDENTIALS_FILE = "credentials.json"  # Admin
 USERS_FILE = "users.json"              # Registered users
